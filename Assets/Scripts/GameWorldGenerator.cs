@@ -8,24 +8,46 @@ public class GameWorldGenerator : MonoBehaviour
     //public float screenChangeDistance = 10;
 
     // higher spawn rate means less objects - not so intuitive
-    public float spawnRate = 2;
-    private float sumedScaleAddition = 1;
+    public float spawnDistance = 50;
+    private float sumedScale = 2;
+    // the distance where we last spawned objects
+    private float lastSpawnPosDistance;
     // Use this for initialization
     void Start()
     {
+        // at the first of the game we add the objects
+        AddNextScreenObjects();
         // TODO SPAWN BASED ON DISTANCE AND NOT BASED ON TIMER
-        InvokeRepeating("AddNextScreenObjects", 0, spawnRate);
-
+        lastSpawnPosDistance = transform.position.x;
+        if ((randomizedObjects.Length & 1) == 1)
+        {
+            throw new System.Exception("Randomized objects length must be an even number");
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        float distanceFromLastSpawnPos = transform.position.x;
 
+        if (distanceFromLastSpawnPos - lastSpawnPosDistance > spawnDistance)
+        {
+            lastSpawnPosDistance = distanceFromLastSpawnPos;
+            AddNextScreenObjects();
+        }
+    }
+
+    void DeletePreviousObjects()
+    {
+        foreach (GameObject previousSpawnedObject in GameObject.FindGameObjectsWithTag("GeneratedWorld"))
+        {
+            Destroy(previousSpawnedObject);
+        }
     }
 
     void AddNextScreenObjects()
     {
+        DeletePreviousObjects();
         // we need to spawn the unrandomized objects
         //foreach (Transform unRandomizedObject in unRandomizedObjects)
         //{
@@ -37,16 +59,22 @@ public class GameWorldGenerator : MonoBehaviour
         //{
         //    Instantiate(randomizedObject, randomizedObject.position, randomizedObject.rotation);
         //}
+
+
         // TODO BETTER SPAWNING
-        Transform upperWall = Instantiate(randomizedObjects[0], new Vector2(transform.position.x + 10, randomizedObjects[0].position.y), randomizedObjects[0].rotation);
-        Transform floorWall = Instantiate(randomizedObjects[1], new Vector2(transform.position.x + 10, randomizedObjects[1].position.y), randomizedObjects[1].rotation);
 
-        float randomScaleAdditionNumber = Random.value * 2;
-        // now we have a number between 0 and 2
+        for (int i = 0; i < randomizedObjects.Length; i += 2)
+        {
+            Transform upperWall = Instantiate(randomizedObjects[i], new Vector2(transform.position.x + (((i + 1) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i].position.y), randomizedObjects[i].rotation);
+            Transform floorWall = Instantiate(randomizedObjects[i + 1], new Vector2(transform.position.x + (((i + 1) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i + 1].position.y), randomizedObjects[i + 1].rotation);
 
-        upperWall.localScale = new Vector3(1, randomScaleAdditionNumber, 1);
-        // scaling the object using the completion of the random value to the sumedScale to make sure there is place for the bird to fly through
-        floorWall.localScale = new Vector3(1, 2 - randomScaleAdditionNumber, 1);
+            float randomScaleAdditionNumber = Random.value * sumedScale;
+            // now we have a number between 0 and sumedScale
+
+            upperWall.localScale = new Vector3(1, randomScaleAdditionNumber, 1);
+            // scaling the object using the completion of the random value to the sumedScale to make sure there is place for the bird to fly through
+            floorWall.localScale = new Vector3(1, sumedScale - randomScaleAdditionNumber, 1);
+        }
 
     }
 }

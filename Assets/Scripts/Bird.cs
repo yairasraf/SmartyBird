@@ -50,7 +50,7 @@ public class Bird : MonoBehaviour
         }
 
         // Animation here
-        render.sprite = animationSprites[(Time.frameCount/15) % animationSprites.Length];
+        render.sprite = animationSprites[(Time.frameCount / 15) % animationSprites.Length];
 
     }
 
