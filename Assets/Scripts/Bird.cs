@@ -66,9 +66,9 @@ public class Bird : MonoBehaviour
     public void Kill()
     {
         //Destroy(gameObject);
+        Instantiate(deathParticleSystem, transform.position, Quaternion.identity);
         transform.position = Vector2.up * 5;
         rigid.velocity = Vector2.zero;
-        Instantiate(deathParticleSystem, transform.position, Quaternion.identity);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
