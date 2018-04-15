@@ -5,10 +5,12 @@ public class NeuralNetwork
 {
     private List<List<Node>> layers;
     // TODO IMPORTANT ADD LEARNING RATE
+    private double learningRate;
 
-    public NeuralNetwork()
+    public NeuralNetwork(double learningRate)
     {
-        layers = new List<List<Node>>();
+        this.layers = new List<List<Node>>();
+        this.learningRate = learningRate;
     }
 
     public void AddDenseLayer(int amountOfNodes, ActivationFunction layerActivation)
@@ -67,6 +69,15 @@ public class NeuralNetwork
         return resultOfOutputLayer;
     }
 
+    // TODO MAYBE - CHANGE THE NAME OF THE FUNCTION TO FIT, BUT MAYBE NOT
+    public void Learn()
+    {
+        // TODO FIX THIS LEARN FUNCTION, ALSO FIX BACK PROPAGATION
+        for (int layerIndex = layers.Count-1; layerIndex >= 1; layerIndex--)
+        {
+            //BackPropagateToPreviousLayer(layers[layerIndex]);
+        }
+    }
     // recieves a layer index and feed forward each node of that layer
     private void FeedForwardToNextLayer(int layerIndex)
     {
@@ -75,6 +86,27 @@ public class NeuralNetwork
             node.FeedForwardToNextLayer();
         }
     }
+
+    // recieves a layer index and back propagate it each node of that previous layer
+    private void BackPropagateToPreviousLayer(int layerIndex, List<double> valuesExpected)
+    {
+        // Validating input data dimensions
+        if (valuesExpected.Count != layers[layerIndex].Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+        for (int i = 0; i < valuesExpected.Count; i++)
+        {
+            Node nodeToBackPropagate = layers[layerIndex][i];
+            nodeToBackPropagate.BackPropagate(valuesExpected[i]);
+        }
+        //foreach (Node node in layers[layerIndex])
+        //{
+        //    node.BackPropagate();
+        //}
+    }
+
 
     // TODO IMPORTANT ADD SAVING AND LOADING OF THE NEURAL NETWORK
     // TODO IMPORTANT WE NEED TO SAVE THE WEIGHTS AND BIASES AND MAYBE THE MODEL ARCHITECTURE IN ORDER TO LOAD IT, PREFER MAYBE TO NOT SAVE MODEL FROM SECURITY PERSPECTIVE
@@ -96,7 +128,7 @@ public class NeuralNetwork
         List<Node> layerCreated = new List<Node>(amountOfNodes);
         for (int i = 0; i < amountOfNodes; i++)
         {
-            Node nodeToAddToLayer = new Node(layerActivation);
+            Node nodeToAddToLayer = new Node(layerActivation, learningRate);
             layerCreated.Add(nodeToAddToLayer);
         }
         return layerCreated;
@@ -129,8 +161,16 @@ public class NeuralNetwork
             }
         }
     }
+
+    public double GetLearningRate()
+    {
+        return this.learningRate;
+    }
+
     // GRADIENT DESCENT ALGORITHM
     // MAYBE TRY:
     // weight += learningRate * error
     // bias += learningRate * error
+
+
 }

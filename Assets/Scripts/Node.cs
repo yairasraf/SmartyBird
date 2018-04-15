@@ -2,13 +2,14 @@
 
 
 // defining the activation function delegate
-public delegate double ActivationFunction(double val);
+public delegate double ActivationFunction(double val, bool derivate);
 
 [System.Serializable]
 public class Node
 {
     private double value; // current value that the Node holds
     private double bias; // bias of the Node
+    private double learningRate; // the learning rate of the Node
 
     private List<Edge> inputEdges; // all edges connected to the Node
     private List<Edge> outputEdges; // all edges going out from the Node
@@ -17,10 +18,10 @@ public class Node
     private ActivationFunction activation;
 
     // empty constructor, default activation is ReLU
-    public Node() : this(new ActivationFunction(Utils.ReLU)) { }
+    public Node(double learningRate) : this(new ActivationFunction(Utils.ReLU), learningRate) { }
 
     // constructor with a specific activation fucntion
-    public Node(ActivationFunction activation)
+    public Node(ActivationFunction activation, double learningRate)
     {
         // creating the node variables
         this.value = 0;
@@ -30,6 +31,8 @@ public class Node
         this.outputEdges = new List<Edge>();
         // setting the activation function of the node
         this.activation = activation;
+        // setting the learning rate of the node
+        this.learningRate = learningRate;
     }
 
     // This function add to the current value of the node
@@ -61,7 +64,7 @@ public class Node
         // adding the bias
         double biasedNodeValue = value + bias;
         // double activationOfBiasedNodeValue = Utils.Sigmoid(biasedNodeValue);
-        double activationOfBiasedNodeValue = activation(biasedNodeValue);
+        double activationOfBiasedNodeValue = activation(biasedNodeValue, false);
         // double activationOfBiasedNodeValue = Utils.ReLU(biasedNodeValue);
         return activationOfBiasedNodeValue;
     }
@@ -80,6 +83,32 @@ public class Node
     public void ResetValue()
     {
         this.value = 0;
+    }
+
+    public void BackPropagate(double valueExpected)
+    {
+        // now we back propagate to the input edges to tweak their weights and biases
+        foreach (Edge backEdge in inputEdges)
+        {
+            // calculating the error and cost and loss and some values
+            // CORE OF LEARNING IS HERE
+            double valueCurrent = (backEdge.Weight * this.value) + this.bias;
+            double error = valueExpected - valueCurrent;
+            // loss function we define as error squared
+            double loss = error * error;
+
+            double weightGradient = -(2) * (this.value * error);
+            double biasGradient = -(2) * (error);
+
+            // this lines are a must
+            backEdge.Weight = backEdge.Weight - (learningRate * weightGradient);
+            this.bias = this.bias - (learningRate * biasGradient);
+
+        }
+
+
+
+
     }
 
 
