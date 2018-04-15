@@ -65,8 +65,8 @@ public class GameWorldGenerator : MonoBehaviour
 
         for (int i = 0; i < randomizedObjects.Length; i += 2)
         {
-            Transform upperWall = Instantiate(randomizedObjects[i], new Vector2(transform.position.x + (((i + 1) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i].position.y), randomizedObjects[i].rotation);
-            Transform floorWall = Instantiate(randomizedObjects[i + 1], new Vector2(transform.position.x + (((i + 1) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i + 1].position.y), randomizedObjects[i + 1].rotation);
+            Transform upperWall = Instantiate(randomizedObjects[i], new Vector2(transform.position.x + (((i + 2) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i].position.y), randomizedObjects[i].rotation);
+            Transform floorWall = Instantiate(randomizedObjects[i + 1], new Vector2(transform.position.x + (((i + 2) * (spawnDistance)) / randomizedObjects.Length), randomizedObjects[i + 1].position.y), randomizedObjects[i + 1].rotation);
 
             float randomScaleAdditionNumber = Random.value * sumedScale;
             // now we have a number between 0 and sumedScale
