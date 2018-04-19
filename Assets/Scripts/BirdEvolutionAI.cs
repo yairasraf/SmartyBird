@@ -2,12 +2,13 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Bird))]
-public class BirdAI : MonoBehaviour
+public class BirdEvolutionAI : MonoBehaviour
 {
     private Bird bird;
+    private BirdDNA dna;
     public NeuralNetwork neuralNet;
     private float eachWallSpriteHeight = 8;
-    public BirdPlayer playerToLearnFrom;
+
     void Start()
     {
         bird = GetComponent<Bird>();
@@ -18,7 +19,7 @@ public class BirdAI : MonoBehaviour
         neuralNet.AddDenseLayer(1, new ActivationFunction(Utils.Sigmoid));
         neuralNet.FinishBuilding(Utils.LinearError);
 
-        // GameManager.instance.AddAIBird(this);
+        GameManager.instance.AddAIBird(this);
     }
 
     void Update()
@@ -67,12 +68,10 @@ public class BirdAI : MonoBehaviour
         List<double> predictionData = new List<double>(2);
         predictionData.Add(distanceFromBirdToNearWall);
         predictionData.Add(heightFromBirdToNearWallEntrance);
-        List<double> expectedData = new List<double>(1);
 
 
-        expectedData.Add(Utils.BooleanToNumber(playerToLearnFrom.isJumping1));
         // teaching the model what he should do from the player playing
-        neuralNet.Learn(predictionData, expectedData);
+
         // trying to predict by itself, here we see it learned something
         double neuralNetPrediction = neuralNet.Predict(predictionData)[0];
 
@@ -89,10 +88,12 @@ public class BirdAI : MonoBehaviour
         return bird.Score();
     }
 
-    public void KillAIBird()
+    public void KillEvolutionAIBird()
     {
+        // we are getting the score in remove AI bird
+        GameManager.instance.RemoveAIBird(this);
+        // only then killing it
         bird.Kill();
-        playerToLearnFrom.GetComponent<Bird>().Kill();
     }
 
 }

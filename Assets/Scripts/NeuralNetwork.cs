@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
 
+// defining the loss function delegate
+public delegate double LossFunction(double errorDelta);
+
 [System.Serializable]
 public class NeuralNetwork
 {
     private List<List<Node>> layers;
     // TODO IMPORTANT ADD LEARNING RATE
     private double learningRate;
+    private LossFunction lossFunction;
+
 
     public NeuralNetwork(double learningRate)
     {
@@ -32,19 +37,23 @@ public class NeuralNetwork
         }
     }
 
-    public List<double> Predict(params double[] data)
+    public void FinishBuilding(LossFunction lossFunction)
+    {
+        this.lossFunction = lossFunction;
+    }
+    public List<double> Predict(List<double> data)
     {
         // resetting the neural network nodes value
         ResetAllNeuralNetworkNodesValue();
         // checking data dimensions
         List<Node> inputLayer = layers[0];
-        if (data.Length != inputLayer.Count)
+        if (data.Count != inputLayer.Count)
         {
             throw new DataDimensionsMismatchException();
         }
 
         // recieves the input data and put it in the first layer
-        for (int i = 0; i < data.Length; i++)
+        for (int i = 0; i < data.Count; i++)
         {
             inputLayer[i].Input(data[i]);
         }
@@ -69,15 +78,6 @@ public class NeuralNetwork
         return resultOfOutputLayer;
     }
 
-    // TODO MAYBE - CHANGE THE NAME OF THE FUNCTION TO FIT, BUT MAYBE NOT
-    public void Learn()
-    {
-        // TODO FIX THIS LEARN FUNCTION, ALSO FIX BACK PROPAGATION
-        for (int layerIndex = layers.Count-1; layerIndex >= 1; layerIndex--)
-        {
-            //BackPropagateToPreviousLayer(layers[layerIndex]);
-        }
-    }
     // recieves a layer index and feed forward each node of that layer
     private void FeedForwardToNextLayer(int layerIndex)
     {
@@ -85,6 +85,46 @@ public class NeuralNetwork
         {
             node.FeedForwardToNextLayer();
         }
+    }
+
+    // TODO MAYBE - CHANGE THE NAME OF THE FUNCTION TO FIT, BUT MAYBE NOT
+    public void Learn(List<double> data, List<double> neuralNetworkOutputValuesExpected)
+    {
+        // SUPER IMPORTANT - WE ARE ONLY TEACHING THE LAST LAYER FOR NOW FOR PROTOTYPING!!!!! IMPROVE AND CHANGE THIS
+        // TODO FIX THIS LEARN FUNCTION, ALSO FIX BACK PROPAGATION
+
+
+        // Validating input data dimensions
+        if (neuralNetworkOutputValuesExpected.Count != layers[layers.Count - 1].Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+        // TODO MAYBE DONT COPY THE ARRAY, BUT MAYBE YES BECAUSE WE DONT WANT TO CHANGE ITS VALUES, CHECK ABOUT THIS
+        // DONT FORGET THAT THIS PREDICT RESETS THAT NEURAL NETWORK VALUES WHICH WE WANT FIRST
+        Predict(data);
+        // now we have an updated neural network with all activated values in place
+        // now we need to update the weights
+        List<double> layerValuesExpected = new List<double>(neuralNetworkOutputValuesExpected);
+
+        for (int currentOutputNodeIndex = 0; currentOutputNodeIndex < layers[layers.Count - 1].Count; currentOutputNodeIndex++)
+        {
+            Node currentOutputNodeToBackPropagate = layers[layers.Count - 1][currentOutputNodeIndex];
+            currentOutputNodeToBackPropagate.BackPropagate(layerValuesExpected[currentOutputNodeIndex]);
+        }
+
+        // THIS IS UNUSED, THIS IS FOR LOOPING AND BACKPROPAGATING EACH LAYER SEPERATLY
+        //// looping each layer and getting its output values and output values expected and backpropagating it
+        //for (int layerIndex = layers.Count - 1; layerIndex >= 1; layerIndex--)
+        //{
+        //    BackPropagateToPreviousLayer(layerIndex, outputValuesExpected);
+        //    // getting the new UPDATED values expected of the previous layer
+        //    layerValuesExpected=
+        //}
+
+        // THIS IS FOR BACKPROPAGATING LAST LAYER AND LETTING THE NODES BACKPROPAGATE BY THEMSELVES
+        // BackPropagateToPreviousLayer(layerIndex, outputValuesExpected);
+
     }
 
     // recieves a layer index and back propagate it each node of that previous layer
@@ -95,32 +135,19 @@ public class NeuralNetwork
         {
             throw new DataDimensionsMismatchException();
         }
+        // TODO MAYBE - DO SOMETHING WITH THIS VARIABLE
+        //double totalSumOfErrors = 0;
 
-        for (int i = 0; i < valuesExpected.Count; i++)
+        // looping and backpropagating each node of the current layer
+        for (int nodeToBackPropagateIndex = 0; nodeToBackPropagateIndex < layers[layerIndex].Count; nodeToBackPropagateIndex++)
         {
-            Node nodeToBackPropagate = layers[layerIndex][i];
-            nodeToBackPropagate.BackPropagate(valuesExpected[i]);
+            Node nodeToBackPropagate = layers[layerIndex][nodeToBackPropagateIndex];
+            nodeToBackPropagate.BackPropagate(valuesExpected[nodeToBackPropagateIndex]);
         }
-        //foreach (Node node in layers[layerIndex])
-        //{
-        //    node.BackPropagate();
-        //}
     }
 
 
-    // TODO IMPORTANT ADD SAVING AND LOADING OF THE NEURAL NETWORK
-    // TODO IMPORTANT WE NEED TO SAVE THE WEIGHTS AND BIASES AND MAYBE THE MODEL ARCHITECTURE IN ORDER TO LOAD IT, PREFER MAYBE TO NOT SAVE MODEL FROM SECURITY PERSPECTIVE
-    public void SaveNeuralNetworkData(string filepath)
-    {
-        // TODO IMPLEMENT THIS
-        System.Console.WriteLine("Not implemented yet.");
-    }
-    public NeuralNetwork LoadNeuralNetworkData(string filepath)
-    {
-        // TODO IMPLEMENT THIS
-        System.Console.WriteLine("Not implemented yet.");
-        return null;
-    }
+
 
     // helper function for creating a nodes layer not connected to anything
     private List<Node> CreateLayer(int amountOfNodes, ActivationFunction layerActivation)
@@ -165,6 +192,84 @@ public class NeuralNetwork
     public double GetLearningRate()
     {
         return this.learningRate;
+    }
+
+    public void SetWeights(int layerIndex, List<List<double>> weights)
+    {
+        // Validating data dimensions
+        if (weights.Count != layers[layerIndex].Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+        // looping and changing each layer's node weights
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            Node nodeToChangeBias = layers[layerIndex][currentNodeIndex];
+            nodeToChangeBias.SetWeightsThatLeadToNextLayer(weights[currentNodeIndex]);
+        }
+    }
+
+    public List<List<double>> GetWeights(int layerIndex)
+    {
+        List<List<double>> weightsToReturn = new List<List<double>>(layers[layerIndex].Count);
+
+        // looping and getting each layer's node weights
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            Node nodeToGetWeights = layers[layerIndex][currentNodeIndex];
+            weightsToReturn.Add(nodeToGetWeights.GetWeights());
+        }
+
+        return weightsToReturn;
+    }
+
+
+    public void SetBiases(int layerIndex, List<double> biases)
+    {
+        // Validating data dimensions
+        if (biases.Count != layers[layerIndex].Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+        // looping and changing each layer's node bias
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            Node nodeToChangeBias = layers[layerIndex][currentNodeIndex];
+            nodeToChangeBias.SetBias(biases[currentNodeIndex]);
+        }
+    }
+
+
+    public List<double> GetBiases(int layerIndex)
+    {
+        List<double> biasesToReturn = new List<double>(layers[layerIndex].Count);
+
+        // looping and getting each layer's node bias
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            Node nodeToGetbias = layers[layerIndex][currentNodeIndex];
+            biasesToReturn.Add(nodeToGetbias.GetBias());
+        }
+
+        return biasesToReturn;
+    }
+
+    // TODO IMPORTANT ADD SAVING AND LOADING OF THE NEURAL NETWORK
+    // TODO IMPORTANT WE NEED TO SAVE THE WEIGHTS AND BIASES AND MAYBE THE MODEL ARCHITECTURE IN ORDER TO LOAD IT, PREFER MAYBE TO NOT SAVE MODEL FROM SECURITY PERSPECTIVE
+    // TODO MAYBE - ALSO MAYBE SAVE WEIGHTS AND BIASES IN CSV FORMAT FOR IT TO BE BETTER CLEAR AND EASY TO UNDERSTAND AND EDIT IF NEEDED
+    public void SaveNeuralNetworkData(string filepath)
+    {
+        // TODO IMPLEMENT THIS, USE THE GET BIASES AND WEIGHTS FUNCTIONS
+        System.Console.WriteLine("Not implemented yet.");
+
+    }
+
+    public NeuralNetwork LoadNeuralNetworkData(string filepath)
+    {
+        // TODO IMPLEMENT THIS, USE THE GET BIASES AND WEIGHTS FUNCTIONS
+        System.Console.WriteLine("Not implemented yet.");
+        return null;
     }
 
     // GRADIENT DESCENT ALGORITHM

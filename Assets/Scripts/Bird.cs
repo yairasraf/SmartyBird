@@ -9,6 +9,8 @@ public class Bird : MonoBehaviour
     public float jumpSpeed = 10;
     public float minYBoundry = 0.5f;
     public float maxYBoundry = 10.5f;
+    // TODO IMPLEMENT THIS BOOLEAN IS JUMPING
+    // public bool isJumping;
     public Transform deathParticleSystem;
     public Sprite[] animationSprites;
 
@@ -71,9 +73,16 @@ public class Bird : MonoBehaviour
         rigid.velocity = Vector2.zero;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    public float Score()
     {
-        // basically losing
-        Kill();
+        // a simple score function, based on the x axis of the object
+        return this.transform.position.x;
     }
+
+    //private void OnCollisionEnter2D(Collision2D collision)
+    //{
+    //     basically losing
+    //    Kill();
+    //}
+
 }

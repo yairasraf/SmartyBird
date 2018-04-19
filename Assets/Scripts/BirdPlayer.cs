@@ -4,10 +4,14 @@
 public class BirdPlayer : MonoBehaviour
 {
     private Bird bird;
+    public BirdAI birdThatLearnsFromYou;
+    public bool isJumping1;
+
     // Use this for initialization
     void Start()
     {
         bird = GetComponent<Bird>();
+
     }
 
     // Update is called once per frame
@@ -21,15 +25,32 @@ public class BirdPlayer : MonoBehaviour
                 if (Input.GetTouch(0).phase == TouchPhase.Began)
                 {
                     bird.Jump();
+                    isJumping1 = true;
+                }
+                else
+                {
+                    isJumping1 = false;
                 }
             }
         }
         else
         {
-            if (Input.GetButtonDown("Jump"))
+            if (Input.GetButton("Jump"))
             {
                 bird.Jump();
+                isJumping1 = true;
+            }
+            else
+            {
+                isJumping1 = false;
             }
         }
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // basically losing
+        bird.Kill();
+        birdThatLearnsFromYou.KillAIBird();
+    }
+
 }

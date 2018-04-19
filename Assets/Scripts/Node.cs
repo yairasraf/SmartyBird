@@ -25,7 +25,8 @@ public class Node
     {
         // creating the node variables
         this.value = 0;
-        this.bias = Utils.randomGenerator.NextDouble();
+        // SMALL random values
+        this.bias = (0.001 - 0.0001) * Utils.randomGenerator.NextDouble() + 0.0001;
         // creating the lists for the edges
         this.inputEdges = new List<Edge>();
         this.outputEdges = new List<Edge>();
@@ -62,12 +63,13 @@ public class Node
         // reLU function here
 
         // adding the bias
-        double biasedNodeValue = value + bias;
+        double biasedNodeValue = ValueWithBias();
         // double activationOfBiasedNodeValue = Utils.Sigmoid(biasedNodeValue);
         double activationOfBiasedNodeValue = activation(biasedNodeValue, false);
         // double activationOfBiasedNodeValue = Utils.ReLU(biasedNodeValue);
         return activationOfBiasedNodeValue;
     }
+
     public void FeedForwardToNextLayer()
     {
         double activatedValue = Activate();
@@ -85,31 +87,118 @@ public class Node
         this.value = 0;
     }
 
+    public double ValueWithBias()
+    {
+        return this.value + this.bias;
+    }
     public void BackPropagate(double valueExpected)
     {
+        // THIS IS OLD VERSION
+        //// now we back propagate to the input edges to tweak their weights and biases
+        //foreach (Edge backEdge in inputEdges)
+        //{
+        //    // calculating the error and cost and loss and some values
+        //    // CORE OF LEARNING IS HERE
+        //    double valueCurrent = (backEdge.Weight * this.value) + this.bias;
+        //    double error = valueExpected - valueCurrent;
+        //    // loss function we define as error squared
+        //    // TODO ADD HERE A REFERENCE TO THE LOSS FUNCTION
+        //    double loss = error * error;
+
+        //    double weightGradient = -(2) * (this.value * error);
+        //    double biasGradient = -(2) * (error);
+
+        //    // this lines are a must
+        //    backEdge.Weight = backEdge.Weight - (learningRate * weightGradient);
+        //    this.bias = this.bias - (learningRate * biasGradient);
+
+        //    // backEdge.Previous.BackPropagate(
+        //}
+
+
+        // UPDATED VERSION
+
+        // CORE OF LEARNING IS HERE
+        // calculating values about this current node
+        double valueCurrentWithoutActivation = ValueWithBias();
+        double valueCurrentWithActivation = Activate();
+
+
+        // calculating the sum of the errors
+        double outputSumMarginOfError = valueExpected - valueCurrentWithActivation;
+        // loss function we define as error squared
+        // TODO ADD HERE A REFERENCE TO THE LOSS FUNCTION
+        double derivactivationOfCurrentValue = this.activation(valueCurrentWithoutActivation, true);
+
+        // this is the important value, specific to each node
+        double deltaOutputSum = derivactivationOfCurrentValue * outputSumMarginOfError;
+
         // now we back propagate to the input edges to tweak their weights and biases
         foreach (Edge backEdge in inputEdges)
         {
             // calculating the error and cost and loss and some values
-            // CORE OF LEARNING IS HERE
-            double valueCurrent = (backEdge.Weight * this.value) + this.bias;
-            double error = valueExpected - valueCurrent;
-            // loss function we define as error squared
-            double loss = error * error;
 
-            double weightGradient = -(2) * (this.value * error);
-            double biasGradient = -(2) * (error);
+            // double loss = error * error;
 
-            // this lines are a must
-            backEdge.Weight = backEdge.Weight - (learningRate * weightGradient);
-            this.bias = this.bias - (learningRate * biasGradient);
+            // double weightGradient = -(2) * (this.value * error);
+            // double biasGradient = -(2) * (error);
 
+            double resOfPreviousNode = backEdge.Previous.Activate();
+            double deltaWeight = deltaOutputSum / resOfPreviousNode;
+
+            // these lines for prototyping
+            // double oldw = backEdge.Weight;
+            // double newW = oldw - deltaWeight;
+
+            // TODO CHECK IF WE REALLY NEED TO MULTIPLY BY LEARNING RATE HERE
+            backEdge.Weight = backEdge.Weight + (2 * deltaWeight);
+            // this lines are maybe important
+            // backEdge.Weight = backEdge.Weight - (learningRate * weightGradient);
+            // this.bias = this.bias - (learningRate * biasGradient);
+
+            // backEdge.Previous.BackPropagate(
         }
-
 
 
 
     }
 
+    public void SetBias(double newBias)
+    {
+        this.bias = newBias;
+    }
+
+    public double GetBias()
+    {
+        return this.bias;
+    }
+    public void SetWeightsThatLeadToNextLayer(List<double> weights)
+    {
+        // validating data dimensions
+        if (outputEdges.Count != weights.Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+        // looping and changing all of the output edges weights
+        for (int currentEdgeIndex = 0; currentEdgeIndex < outputEdges.Count; currentEdgeIndex++)
+        {
+            // getting the connecting edge
+            Edge weightThatLeadToNextLayer = outputEdges[currentEdgeIndex];
+            // setting its weight
+            weightThatLeadToNextLayer.Weight = weights[currentEdgeIndex];
+        }
+    }
+    public List<double> GetWeights()
+    {
+        List<double> weightsToReturn = new List<double>(outputEdges.Count);
+
+        // looping and adding the output edges weights
+        foreach (Edge outputEdgeToGetWeight in outputEdges)
+        {
+            weightsToReturn.Add(outputEdgeToGetWeight.Weight);
+        }
+
+        return weightsToReturn;
+    }
 
 }
