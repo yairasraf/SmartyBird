@@ -344,7 +344,6 @@ public class NeuralNetwork
     {
         // TODO IMPLEMENT THIS, USE THE GET BIASES AND WEIGHTS FUNCTIONS
         System.Console.WriteLine("Not implemented yet.");
-
     }
 
     public NeuralNetwork LoadNeuralNetworkData(string filepath)

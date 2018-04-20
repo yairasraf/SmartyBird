@@ -6,7 +6,7 @@ public class BirdAI : MonoBehaviour
 {
     private Bird bird;
     public NeuralNetwork neuralNet;
-    private float eachWallSpriteHeight = 8;
+    public float eachWallSpriteHeight = 8;
     public BirdPlayer playerToLearnFrom;
     void Start()
     {
@@ -25,21 +25,8 @@ public class BirdAI : MonoBehaviour
     {
 
         // TOOD IMPORTANT - ADD A DIFFERENT INPUT, PROBABLY SOMETHING HERE THAT WILL MAKE THE BIRD SORT OF SEE THE TERRAIN, THE WORLD
-        // TODO MAYBE - USE RAY CASTING INSTEAD BECAUSE IT IS MAYBE MORE REALISTIC
-        // Ray2D ray;
-        //RaycastHit2D hit;
-        //// now we need to get the nearest wall position in ordre to put it as data to the neural network
-
-        //hit = Physics2D.Raycast(transform.position, Vector2.right, 1000, wallsLayerMask);
-
-        //// if we did not hit anything with the raycast
-        //if (!hit.transform)
-        //{
-        //    return;
-        //}
 
         // now we pass the coordinates of what wall we hit
-        //double distanceFromBirdToNearWall = hit.transform.position.x - transform.position.x;
         Transform upperWallObject = GameWorldGenerator.instance.oldestSpawnedUpperWall;
         Transform floorWallObject = GameWorldGenerator.instance.oldestSpawnedFloorWall;
         if (!(upperWallObject && floorWallObject))
@@ -55,7 +42,6 @@ public class BirdAI : MonoBehaviour
         double topOfTheEntranceY = upperWallObject.root.position.y - (heightScaleOfUpperWall * eachWallSpriteHeight);
         double bottomOfTheEntranceY = heightScaleOfFloorWall * eachWallSpriteHeight;
         double middleOfTheEntrance = (topOfTheEntranceY + bottomOfTheEntranceY) / 2;
-        // hard-coded value of 2.0f, probably better to change this later
         double heightFromBirdToNearWallEntrance = transform.position.y - middleOfTheEntrance;
 
         // print("Passed to neural network: (" + distanceFromBirdToNearWall + "," + heightFromBirdToNearWallEntrance + ")");
@@ -90,14 +76,6 @@ public class BirdAI : MonoBehaviour
     {
         // a simple fitness function, based on the score of the bird
         return bird.Score();
-    }
-
-    public float KillAIBird()
-    {
-        float fitnessToReturn = this.Fitness();
-        //bird.Kill();
-        //playerToLearnFrom.GetComponent<Bird>().Kill();
-        return fitnessToReturn;
     }
 
 }

@@ -11,8 +11,8 @@ public class GameWorldGenerator : MonoBehaviour
     public Transform floorWall;
     // higher spawn rate means more objects per distance
     public float spawnRate = 0.1f;
-    public float spawnOffsetFromPosition = 50;
-    public int maxObjectsSpawned = 30;
+    public float spawnOffsetFromPosition = 30;
+    public int maxObjectsSpawned = 8;
     public Queue<Transform> spawnedObjectsQueue;
     public Transform oldestSpawnedUpperWall;
     public Transform oldestSpawnedFloorWall;

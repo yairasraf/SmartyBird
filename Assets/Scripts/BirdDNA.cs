@@ -46,8 +46,8 @@ public class BirdDNA
             }
         }
     }
-    // static function to cross over two bird dna
-    // cross over meaning taking half dna of each bird
+    // static function to crossing over two bird dna
+    // crossing over meaning taking half dna of each bird
     public static BirdDNA CrossOver(BirdDNA bird1, BirdDNA bird2)
     {
         // validating data dimensions

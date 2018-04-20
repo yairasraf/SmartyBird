@@ -7,7 +7,6 @@ public class BirdPlayer : MonoBehaviour
     public static BirdPlayer singelton = null;
     private Bird bird;
     public Text scoreText;
-    // public BirdAI birdThatLearnsFromYou;
     public bool isJumping1;
 
     // Use this for initialization
@@ -15,13 +14,14 @@ public class BirdPlayer : MonoBehaviour
     {
         if (singelton)
         {
-            Destroy(this.gameObject);
+            Destroy(singelton.gameObject);
+            singelton = this;
+
         }
         else
         {
             singelton = this;
             bird = GetComponent<Bird>();
-            // GameManager.instance.AddBird();
         }
     }
 
@@ -36,15 +36,16 @@ public class BirdPlayer : MonoBehaviour
         {
             if (Input.touchCount > 0)
             {
-                if (Input.GetTouch(0).phase == TouchPhase.Began)
-                {
-                    bird.Jump();
-                    isJumping1 = true;
-                }
-                else
-                {
-                    isJumping1 = false;
-                }
+                bird.Jump();
+                //if (Input.GetTouch(0).phase == TouchPhase.Began)
+                //{
+                //    bird.Jump();
+                //    isJumping1 = true;
+                //}
+                //else
+                //{
+                //    isJumping1 = false;
+                //}
             }
         }
         else
@@ -59,15 +60,6 @@ public class BirdPlayer : MonoBehaviour
                 isJumping1 = false;
             }
         }
-    }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // basically losing
-        //bird.Kill();
-        // birdThatLearnsFromYou.KillAIBird();
-        singelton = null;
-        Destroy(this.gameObject);
-        GameManager.instance.RemovePlayerBird();
     }
 
 }

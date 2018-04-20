@@ -2,8 +2,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// IMPORTANT NOTES:
+// INSPIRATION GOT FROM THIS PROJECT: 
+// https://youtu.be/aeWmdojEJf0
+// https://github.com/ssusnic/Machine-Learning-Flappy-Bird
 
-
+/// <summary>
+/// Helper class for holding two values in an object
+/// </summary>
+/// <typeparam name="T">First value in the tuple</typeparam>
+/// <typeparam name="K">Second value in the tuple</typeparam>
 public class Tuple<T, K>
 {
     public T val1;
@@ -16,27 +24,23 @@ public class Tuple<T, K>
     }
 }
 
-
+/// <summary>
+/// A class to represent the game manager
+/// Should have only 1 at any given time, it controls some game features
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-
-
+    // singleton of the game manager
     public static GameManager instance;
 
-    // private List<BirdDNA> aiBirdsPool;
-    private int amountOfBirdsAlive;
+    public int amountOfBirdsAlive;
 
     private List<Tuple<float, BirdDNA>> choosedBirdsDNAPool;
 
-    // private List<float> finalFitnessOfBirdsOrderer;
 
 
     public BirdEvolutionAI birdEvolutionAIToSpawn;
 
-    //private void Awake()
-    //{
-
-    //}
     // Use this for initialization
     void Start()
     {
@@ -48,12 +52,9 @@ public class GameManager : MonoBehaviour
         {
             DontDestroyOnLoad(this.gameObject);
             instance = this;
-            // aiBirdsPool = new List<BirdDNA>(10);
             amountOfBirdsAlive = 0;
             choosedBirdsDNAPool = new List<Tuple<float, BirdDNA>>(2);
-            // finalFitnessOfBirdsOrderer = new List<float>(10);
-
-            // InstantiateAndImproveAndMutateAndCrossOverBirds();
+            // loading the next level because we start the game manager in the pre-loader level
             LoadNextLevel();
 
         }
@@ -62,26 +63,19 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        print(amountOfBirdsAlive);
+
     }
+
     /// <summary>
     /// We call this function when we want to start a round,
-    /// after each round we should compute the AI and improve it and this function does this as well.
-    /// also it restarts the level
+    /// it reset the birds counter, also it restarts the level
     /// </summary>
     public void Round()
     {
-        // TODO ADD CALLING TO THE ALGORITHM ABOUT IMPROVING EACH BIRD AI HERE
-
-        // choosing 4 best birds via fitness function
-        // AddChosenBirdsToArrayAnRemoveAllFromOriginalArray();
-
-        // RESTART LEVEL FOR NOW
+        // RESTART LEVEL MEANING WE GET A NEW SET OF BIRDS
         RestartLevel();
         // reset the amount of birds alive
         instance.amountOfBirdsAlive = 0;
-        // instantiate new better birds
-        // InstantiateAndImproveAndMutateAndCrossOverBirds();
     }
     /// <summary>
     /// This function loads the next level from all of the possible scenes
@@ -97,20 +91,26 @@ public class GameManager : MonoBehaviour
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
-    public void AddBird()
+    public void IncCurrentlyAliveBirdsCounter()
     {
-        // aiBirdsPool.Add(birdEvolutionAIDNAToAdd);
         amountOfBirdsAlive++;
     }
-    public void RemoveAIBird(BirdEvolutionAI birdEvolutionAIToRemove)
+    public void DecCurrentlyAliveBirdsCounterAndCheckForEndRound()
     {
-        // finalFitnessOfBirdsOrderer.Add(birdEvolutionAIToAdd.Fitness());
+        amountOfBirdsAlive--;
+        if (amountOfBirdsAlive == 0)
+        {
+            Round();
+        }
+    }
+    public void RemoveAIBirdAndCalculateTheNewBestBirdsDna(BirdEvolutionAI birdEvolutionAIToRemove)
+    {
 
-        // INSERTING THE BIRDS DNA IF IT IS THE BEST BIRD VIA FITNESS FUNCTION
+        // INSERTING THE BIRDS DNA TO THE CHOOSEN DNA'S ARRAY IF IT IS THE BEST BIRD VIA FITNESS FUNCTION
         // now looping the best birds array and comparing to check if we need to switch with some bird
         if (choosedBirdsDNAPool.Count < 2)
         {
-            choosedBirdsDNAPool.Add(new Tuple<float, BirdDNA>(birdEvolutionAIToRemove.Fitness(), birdEvolutionAIToRemove.dna));
+            choosedBirdsDNAPool.Add(new Tuple<float, BirdDNA>(birdEvolutionAIToRemove.Fitness(), birdEvolutionAIToRemove.Dna));
         }
         else
         {
@@ -118,73 +118,21 @@ public class GameManager : MonoBehaviour
             {
                 if (birdEvolutionAIToRemove.Fitness() > choosedBirdsDNAPool[bestBirdIndex].val1)
                 {
-                    choosedBirdsDNAPool[bestBirdIndex] = new Tuple<float, BirdDNA>(birdEvolutionAIToRemove.Fitness(), birdEvolutionAIToRemove.dna);
+                    choosedBirdsDNAPool[bestBirdIndex] = new Tuple<float, BirdDNA>(birdEvolutionAIToRemove.Fitness(), birdEvolutionAIToRemove.Dna);
                     break;
                 }
             }
         }
 
-
-
-        // InsertBirdDNAToChoosenBirdsDNAArray(birdEvolutionAIToRemove);
-        // aiBirdsPool.Remove(birdEvolutionAIToRemove.dna);
-        amountOfBirdsAlive--;
-        // TODO ADD SAVING FITNESS HERE THEN SELECTING, MUTATING, CROSS OVER
-        // starting a new round if all birds are dead
-        // if (aiBirdsPool.Count == 0)
-        if (amountOfBirdsAlive == 0)
-        {
-            Round();
-        }
     }
-
-    public void RemovePlayerBird()
-    {
-        // if (aiBirdsPool.Count == 0)
-        amountOfBirdsAlive--;
-        if (amountOfBirdsAlive == 0)
-        {
-            Round();
-        }
-    }
-    //private void InsertBirdDNAToChoosenBirdsDNAArray(BirdDNA birdAIToMaybeInsert)
-    //{
-
-    //}
-    //private void AddChosenBirdsToArrayAnRemoveAllFromOriginalArray()
-    //{
-    //    // DONT FORGET THAT WE HAVE ONLY FITNESSES OF BIRD IN THE ARRAY OF FITNESSES
-    //    // finalFitnessOfBirdsOrderer
-    //    // adding 2 first birds
-    //    for (int i = 0; i < 2; i++)
-    //    {
-    //        choosedBirdsDNAPool[i] = aiBirdsPool[i];
-    //        aiBirdsPool.RemoveAt(i);
-    //    }
-    //    // now looping to check if we have bird bigger than some other bird
-    //    for (int curBirdIndex = 0; curBirdIndex < aiBirdsPool.Count; curBirdIndex++)
-    //    {
-    //        BirdEvolutionAI curBird = aiBirdsPool[curBirdIndex];
-    //        // now looping the best birds array and comparing to check if we need to switch with some bird
-    //        for (int bestBirdIndex = 0; bestBirdIndex < choosedBirdsDNAPool.Count; bestBirdIndex++)
-    //        {
-    //            if (curBird.Fitness() > choosedBirdsDNAPool[bestBirdIndex].Fitness())
-    //            {
-    //                choosedBirdsDNAPool[bestBirdIndex] = curBird;
-    //            }
-    //        }
-    //    }
-
-    //    // now empty the not choosen birds array
-    //    aiBirdsPool.RemoveRange(0, aiBirdsPool.Count);
-    //}
 
     /// <summary>
     /// A Simple DNA Generator based on the best DNA's that were before it
     /// </summary>
-    /// <returns></returns>
+    /// <returns>A new Bird's DNA to use, at first will be null, then will generate better ones</returns>
     public BirdDNA GetANewBirdDNA()
     {
+        // MAIN LEARNING IS HERE AT GENERATING A BETTER BIRD'S DNA EACH GENERATION
         BirdDNA birdDNAToReturn = null;
         if (choosedBirdsDNAPool.Count < 2)
         {
@@ -199,23 +147,45 @@ public class GameManager : MonoBehaviour
         }
         return birdDNAToReturn;
     }
-    //private void InstantiateAndImproveAndMutateAndCrossOverBirds()
-    //{
-    //    // TODO ADD MUTATING HERE
-    //    // assuming we have 2 birds in the best birds array
-    //    print("reached mutating");
-    //    for (int i = 0; i < 10; i++)
-    //    {
-    //        BirdEvolutionAI newBird = Instantiate(birdEvolutionAIToSpawn, birdEvolutionAIToSpawn.transform.position, birdEvolutionAIToSpawn.transform.rotation);
-    //        if (this.choosedBirdsDNAPool.Count != 0)
-    //        {
-    //            // cross over the two dna's and loading the new bird's dna
-    //            newBird.LoadNewBirdDNA(BirdDNA.CrossOver(choosedBirdsDNAPool[0].val2, choosedBirdsDNAPool[1].val2));
-    //            // mutating the new dna a bit
-    //            newBird.dna.Mutate(GameConstants.defaultMutationChance);
-    //            // newBird.dna = choosedBirdsDNAPool;
-    //        }
-    //    }
-    //}
+
+    public void SaveBestBirdsDNAs()
+    {
+        // TODO IMPLEMENT THIS, USE THE GET BIASES AND WEIGHTS FUNCTIONS
+        System.Console.WriteLine("Not implemented yet.");
+    }
+
+    // Game manager utils function - mostly for UX/UI
+
+    public void PauseGame()
+    {
+        Time.timeScale = 0;
+    }
+
+    public void ResumeGame()
+    {
+        Time.timeScale = 1;
+    }
+
+    public void FastForwardGame()
+    {
+        // maybe could be heavy on CPU/GPU, because more calculations
+        Time.timeScale = 2;
+    }
+
+    public void ReallyFastForwardGame()
+    {
+        // maybe could be really heavy on CPU/GPU, because more calculations
+        Time.timeScale = 3;
+    }
+
+    public void LoadLevel(string levelName)
+    {
+        // when we load a level we should reset some values
+        ScoreManager.ResetScores();
+        BirdEvolutionAI.instances.RemoveRange(0, BirdEvolutionAI.instances.Count);
+        CameraFollow.targets.RemoveRange(0, CameraFollow.targets.Count);
+
+        SceneManager.LoadScene(levelName);
+    }
 
 }
