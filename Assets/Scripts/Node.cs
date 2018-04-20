@@ -26,7 +26,8 @@ public class Node
         // creating the node variables
         this.value = 0;
         // SMALL random values
-        this.bias = (0.001 - 0.0001) * Utils.randomGenerator.NextDouble() + 0.0001;
+        // this.bias = (0.001 - 0.0001) * Utils.randomGenerator.NextDouble() + 0.0001;
+        this.bias = Utils.randomGenerator.NextDouble();
         // creating the lists for the edges
         this.inputEdges = new List<Edge>();
         this.outputEdges = new List<Edge>();
@@ -151,12 +152,19 @@ public class Node
             // double newW = oldw - deltaWeight;
 
             // TODO CHECK IF WE REALLY NEED TO MULTIPLY BY LEARNING RATE HERE
-            backEdge.Weight = backEdge.Weight + (2 * deltaWeight);
+            backEdge.Weight = backEdge.Weight + (learningRate * deltaWeight);
             // this lines are maybe important
             // backEdge.Weight = backEdge.Weight - (learningRate * weightGradient);
             // this.bias = this.bias - (learningRate * biasGradient);
 
             // backEdge.Previous.BackPropagate(
+        }
+
+        // now calling backpropagate on the other hidden layers
+        // TODO ADD THIS HERE
+        foreach (Edge inputEdge in inputEdges)
+        {
+
         }
 
 

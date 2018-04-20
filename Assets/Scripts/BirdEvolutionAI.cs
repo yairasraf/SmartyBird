@@ -5,7 +5,14 @@ using UnityEngine;
 public class BirdEvolutionAI : MonoBehaviour
 {
     private Bird bird;
-    private BirdDNA dna;
+    //public BirdDNA Dna
+    //{
+    //    get
+    //    {
+    //        return new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
+    //    }
+    //}
+    public BirdDNA dna;
     public NeuralNetwork neuralNet;
     private float eachWallSpriteHeight = 8;
 
@@ -19,25 +26,32 @@ public class BirdEvolutionAI : MonoBehaviour
         neuralNet.AddDenseLayer(1, new ActivationFunction(Utils.Sigmoid));
         neuralNet.FinishBuilding(Utils.LinearError);
 
+
+        this.dna = new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
+        //if (this.Dna == null)
+        //{
+        //    this.dna = new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
+        //}
+        //else
+        //{
+        //    print(dna.weightsOfNeuralNetwork);
+        //    neuralNet.SetWeights(dna.weightsOfNeuralNetwork);
+        //    neuralNet.SetBiases(dna.biasesOfNeuralNetwork);
+        //    //neuralNet.SetWeights(0, dna.weightsOfNeuralNetwork[0]);
+        //    //neuralNet.SetBiases(0, dna.biasesOfNeuralNetwork[0]);
+
+        //    //neuralNet.SetWeights(1, dna.weightsOfNeuralNetwork[1]);
+        //    //neuralNet.SetBiases(1, dna.biasesOfNeuralNetwork[1]);
+
+        //    //neuralNet.SetWeights(2, dna.weightsOfNeuralNetwork[2]);
+        //    //neuralNet.SetBiases(2, dna.biasesOfNeuralNetwork[2]);
+        //}
         GameManager.instance.AddAIBird(this);
     }
 
     void Update()
     {
 
-        // TOOD IMPORTANT - ADD A DIFFERENT INPUT, PROBABLY SOMETHING HERE THAT WILL MAKE THE BIRD SORT OF SEE THE TERRAIN, THE WORLD
-        // TODO MAYBE - USE RAY CASTING INSTEAD BECAUSE IT IS MAYBE MORE REALISTIC
-        // Ray2D ray;
-        //RaycastHit2D hit;
-        //// now we need to get the nearest wall position in ordre to put it as data to the neural network
-
-        //hit = Physics2D.Raycast(transform.position, Vector2.right, 1000, wallsLayerMask);
-
-        //// if we did not hit anything with the raycast
-        //if (!hit.transform)
-        //{
-        //    return;
-        //}
 
         // now we pass the coordinates of what wall we hit
         //double distanceFromBirdToNearWall = hit.transform.position.x - transform.position.x;
@@ -65,9 +79,11 @@ public class BirdEvolutionAI : MonoBehaviour
         // passing the coordinates to the neural network
 
         // building the data set
-        List<double> predictionData = new List<double>(2);
-        predictionData.Add(distanceFromBirdToNearWall);
-        predictionData.Add(heightFromBirdToNearWallEntrance);
+        List<double> predictionData = new List<double>(2)
+        {
+            distanceFromBirdToNearWall,
+            heightFromBirdToNearWallEntrance
+        };
 
 
         // teaching the model what he should do from the player playing
@@ -88,12 +104,25 @@ public class BirdEvolutionAI : MonoBehaviour
         return bird.Score();
     }
 
-    public void KillEvolutionAIBird()
+
+    public void LoadNewBirdDNA(BirdDNA newDna)
     {
+        this.dna = newDna;
+    }
+    // kills a bird and returns its fitness
+    public float KillEvolutionAIBird()
+    {
+        float fitnessToReturn = this.Fitness();
         // we are getting the score in remove AI bird
         GameManager.instance.RemoveAIBird(this);
         // only then killing it
-        bird.Kill();
+        Destroy(this.gameObject);
+        return fitnessToReturn;
     }
 
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        // basically losing
+        KillEvolutionAIBird();
+    }
 }

@@ -64,13 +64,16 @@ public class BirdAI : MonoBehaviour
         // passing the coordinates to the neural network
 
         // building the data set
-        List<double> predictionData = new List<double>(2);
-        predictionData.Add(distanceFromBirdToNearWall);
-        predictionData.Add(heightFromBirdToNearWallEntrance);
-        List<double> expectedData = new List<double>(1);
+        List<double> predictionData = new List<double>(2)
+        {
+            distanceFromBirdToNearWall,
+            heightFromBirdToNearWallEntrance
+        };
 
-
-        expectedData.Add(Utils.BooleanToNumber(playerToLearnFrom.isJumping1));
+        List<double> expectedData = new List<double>(1)
+        {
+            Utils.BooleanToNumber(playerToLearnFrom.isJumping1)
+        };
         // teaching the model what he should do from the player playing
         neuralNet.Learn(predictionData, expectedData);
         // trying to predict by itself, here we see it learned something
@@ -89,10 +92,12 @@ public class BirdAI : MonoBehaviour
         return bird.Score();
     }
 
-    public void KillAIBird()
+    public float KillAIBird()
     {
+        float fitnessToReturn = this.Fitness();
         bird.Kill();
         playerToLearnFrom.GetComponent<Bird>().Kill();
+        return fitnessToReturn;
     }
 
 }

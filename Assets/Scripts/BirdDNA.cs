@@ -7,38 +7,41 @@ using System.Collections.Generic;
 [System.Serializable]
 public class BirdDNA
 {
-    public List<List<double>> weightsOfNeuralNetwork;
-    public List<double> biasesOfNeuralNetwork;
+    public List<List<List<double>>> weightsOfNeuralNetwork;
+    public List<List<double>> biasesOfNeuralNetwork;
 
-    public Bird bird;
 
-    public BirdDNA(List<List<double>> weightsOfNeuralNetwork, List<double> biasesOfNeuralNetwork)
+    public BirdDNA(List<List<List<double>>> weightsOfNeuralNetwork, List<List<double>> biasesOfNeuralNetwork)
     {
         this.weightsOfNeuralNetwork = weightsOfNeuralNetwork;
         this.biasesOfNeuralNetwork = biasesOfNeuralNetwork;
     }
 
     // call this function only once on each bird dna
-    public void Mutate()
+    public void Mutate(double mutationChance)
     {
-        // mutating biases
-        for (int biasIndex = 0; biasIndex < biasesOfNeuralNetwork.Count; biasIndex++)
-        {
-            // change of 1/50 to mutate
-            if (Utils.randomGenerator.Next(0, 50) == 25)
-            {
-                biasesOfNeuralNetwork[biasIndex] *= Utils.GetRandomNumber(0, 2);
-            }
-        }
-        // mutating weights
         for (int layerIndex = 0; layerIndex < weightsOfNeuralNetwork.Count; layerIndex++)
         {
-            for (int weightIndex = 0; weightIndex < weightsOfNeuralNetwork.Count; weightIndex++)
+
+            // mutating biases
+            for (int biasIndex = 0; biasIndex < biasesOfNeuralNetwork.Count; biasIndex++)
             {
-                // change of 1/50 to mutate
-                if (Utils.randomGenerator.Next(0, 50) == 25)
+                // change to mutate here
+                if (Utils.randomGenerator.NextDouble() < mutationChance)
                 {
-                    weightsOfNeuralNetwork[layerIndex][weightIndex] *= Utils.GetRandomNumber(0, 2);
+                    biasesOfNeuralNetwork[layerIndex][biasIndex] *= Utils.GetRandomNumber(0, 2);
+                }
+            }
+            // mutating weights
+            for (int nodeIndex = 0; nodeIndex < weightsOfNeuralNetwork.Count; nodeIndex++)
+            {
+                for (int weightIndex = 0; weightIndex < weightsOfNeuralNetwork.Count; weightIndex++)
+                {
+                    // change to mutate here
+                    if (Utils.randomGenerator.NextDouble() < mutationChance)
+                    {
+                        weightsOfNeuralNetwork[layerIndex][nodeIndex][weightIndex] *= Utils.GetRandomNumber(0, 2);
+                    }
                 }
             }
         }
@@ -47,13 +50,74 @@ public class BirdDNA
     // cross over meaning taking half dna of each bird
     public static BirdDNA CrossOver(BirdDNA bird1, BirdDNA bird2)
     {
-        List<List<double>> weightsInNewDNA = new List<List<double>>();
-        List<double> biasesInNewDNA = new List<double>();
+        // validating data dimensions
+        if (bird1.weightsOfNeuralNetwork.Count != bird2.weightsOfNeuralNetwork.Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+        if (bird1.biasesOfNeuralNetwork.Count != bird2.biasesOfNeuralNetwork.Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+
+        // initializing the new weights array
+        // now doing cross over algorithm, taking 1 info from bird and 1 from bird2
+        List<List<List<double>>> weightsInNewDNA = new List<List<List<double>>>();
+
+        // looping each layer and adding its weights to the 2D array
+        for (int curLayerIndex = 0; curLayerIndex < bird1.weightsOfNeuralNetwork.Count; curLayerIndex++)
+        {
+            List<List<double>> curLayerNodesDna = new List<List<double>>();
+            // looping each weight in a specific layer and adding its weight to the 2D array
+            for (int curNodeIndex = 0; curNodeIndex < bird1.weightsOfNeuralNetwork[curLayerIndex].Count; curNodeIndex++)
+            {
+                List<double> curNodeWeightsDna = new List<double>();
+                for (int curNodeWeightIndex = 0; curNodeWeightIndex < bird1.weightsOfNeuralNetwork[curLayerIndex][curNodeIndex].Count; curNodeWeightIndex++)
+                {
+                    // add here a weight of either from bird1 or from bird2, one from each one or randomly
+                    // returns a number which is either 0 or 1
+                    if (Utils.randomGenerator.Next(0, 2) == 1)
+                    {
+                        curNodeWeightsDna.Add(bird1.weightsOfNeuralNetwork[curLayerIndex][curNodeIndex][curNodeWeightIndex]);
+                    }
+                    else
+                    {
+                        curNodeWeightsDna.Add(bird2.weightsOfNeuralNetwork[curLayerIndex][curNodeIndex][curNodeWeightIndex]);
+                    }
+                }
+                curLayerNodesDna.Add(curNodeWeightsDna);
+            }
+            weightsInNewDNA.Add(curLayerNodesDna);
+        }
+
+
+        // initializing the new biases array
+        List<List<double>> biasesInNewDNA = new List<List<double>>();
+        // looping each layer in the neural network
+        for (int curLayerIndex = 0; curLayerIndex < bird1.biasesOfNeuralNetwork.Count; curLayerIndex++)
+        {
+            List<double> biasesOfNodesInCurLayer = new List<double>();
+            // looping each bias in a specific layer and adding its bias to the 1D array
+            for (int curBiasIndex = 0; curBiasIndex < bird1.biasesOfNeuralNetwork[curLayerIndex].Count; curBiasIndex++)
+            {
+                // add here a weight of either from bird1 or from bird2, one from each one or randomly
+                if (Utils.randomGenerator.Next(0, 2) == 1)
+                {
+                    biasesOfNodesInCurLayer.Add(bird1.biasesOfNeuralNetwork[curLayerIndex][curBiasIndex]);
+                }
+                else
+                {
+                    biasesOfNodesInCurLayer.Add(bird2.biasesOfNeuralNetwork[curLayerIndex][curBiasIndex]);
+                }
+            }
+            biasesInNewDNA.Add(biasesOfNodesInCurLayer);
+        }
 
 
 
-
-        BirdDNA birdDNAToReturn = new BirdDNA(new List<List<double>>(), new List<double>());
+        // creating and returning the new bird dna that was cross over between the two dna's
+        BirdDNA birdDNAToReturn = new BirdDNA(weightsInNewDNA, biasesInNewDNA);
         return birdDNAToReturn;
     }
 

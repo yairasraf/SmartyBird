@@ -18,7 +18,7 @@ public class GameWorldGenerator : MonoBehaviour
     public Transform oldestSpawnedFloorWall;
 
 
-    private float sumedScale = 2;
+    private float sumedScale = 4;
     // the distance where we last spawned objects
     private float lastSpawnPosDistance;
     // Use this for initialization

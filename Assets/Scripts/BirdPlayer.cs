@@ -1,10 +1,12 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(Bird))]
 public class BirdPlayer : MonoBehaviour
 {
     private Bird bird;
-    public BirdAI birdThatLearnsFromYou;
+    public Text scoreText;
+    // public BirdAI birdThatLearnsFromYou;
     public bool isJumping1;
 
     // Use this for initialization
@@ -17,6 +19,9 @@ public class BirdPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // updating the score of the player
+        scoreText.text = "Fitness: " + Mathf.Round(this.bird.Score());
+
         // checking whether we pressed jump, cross-platform input
         if (Application.isMobilePlatform)
         {
@@ -50,7 +55,7 @@ public class BirdPlayer : MonoBehaviour
     {
         // basically losing
         bird.Kill();
-        birdThatLearnsFromYou.KillAIBird();
+        // birdThatLearnsFromYou.KillAIBird();
     }
 
 }

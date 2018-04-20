@@ -194,41 +194,28 @@ public class NeuralNetwork
         return this.learningRate;
     }
 
-    public void SetWeights(int layerIndex, List<List<double>> weights)
+
+    //public List<List<double>> GetLayerWeights(int layerIndex)
+    //{
+    //    List<List<double>> weightsToReturn = new List<List<double>>(layers[layerIndex].Count);
+
+    //     looping and getting each layer's node weights
+    //    for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+    //    {
+    //        Node nodeToGetWeights = layers[layerIndex][currentNodeIndex];
+    //        weightsToReturn.Add(nodeToGetWeights.GetWeights());
+    //    }
+
+    //    return weightsToReturn;
+    //}
+
+
+    // BIASES
+
+    public void SetLayerBiases(int layerIndex, List<double> layerBiases)
     {
         // Validating data dimensions
-        if (weights.Count != layers[layerIndex].Count)
-        {
-            throw new DataDimensionsMismatchException();
-        }
-
-        // looping and changing each layer's node weights
-        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
-        {
-            Node nodeToChangeBias = layers[layerIndex][currentNodeIndex];
-            nodeToChangeBias.SetWeightsThatLeadToNextLayer(weights[currentNodeIndex]);
-        }
-    }
-
-    public List<List<double>> GetWeights(int layerIndex)
-    {
-        List<List<double>> weightsToReturn = new List<List<double>>(layers[layerIndex].Count);
-
-        // looping and getting each layer's node weights
-        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
-        {
-            Node nodeToGetWeights = layers[layerIndex][currentNodeIndex];
-            weightsToReturn.Add(nodeToGetWeights.GetWeights());
-        }
-
-        return weightsToReturn;
-    }
-
-
-    public void SetBiases(int layerIndex, List<double> biases)
-    {
-        // Validating data dimensions
-        if (biases.Count != layers[layerIndex].Count)
+        if (layerBiases.Count != layers[layerIndex].Count)
         {
             throw new DataDimensionsMismatchException();
         }
@@ -236,23 +223,118 @@ public class NeuralNetwork
         for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
         {
             Node nodeToChangeBias = layers[layerIndex][currentNodeIndex];
-            nodeToChangeBias.SetBias(biases[currentNodeIndex]);
+            nodeToChangeBias.SetBias(layerBiases[currentNodeIndex]);
+        }
+    }
+
+    public void SetBiases(List<List<double>> biases)
+    {
+        // Validating data dimensions
+        if (biases.Count != layers.Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+        // looping and changing each layer's node bias
+        for (int currentLayerIndex = 0; currentLayerIndex < layers.Count; currentLayerIndex++)
+        {
+            this.SetLayerBiases(currentLayerIndex, biases[currentLayerIndex]);
         }
     }
 
 
-    public List<double> GetBiases(int layerIndex)
+    public List<double> GetLayerBiases(int layerIndex)
     {
-        List<double> biasesToReturn = new List<double>(layers[layerIndex].Count);
+        List<double> layerBiasesToReturn = new List<double>(layers[layerIndex].Count);
 
         // looping and getting each layer's node bias
         for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
         {
             Node nodeToGetbias = layers[layerIndex][currentNodeIndex];
-            biasesToReturn.Add(nodeToGetbias.GetBias());
+            layerBiasesToReturn.Add(nodeToGetbias.GetBias());
+        }
+
+        return layerBiasesToReturn;
+    }
+
+    public List<List<double>> GetBiases()
+    {
+        List<List<double>> biasesToReturn = new List<List<double>>(layers.Count);
+
+        // looping and getting each layer's node biases
+        for (int currentLayerIndex = 0; currentLayerIndex < layers.Count; currentLayerIndex++)
+        {
+            biasesToReturn.Add(this.GetLayerBiases(currentLayerIndex));
         }
 
         return biasesToReturn;
+    }
+
+
+
+
+    // WEIGHTS
+    public void SetLayerWeights(int layerIndex, List<List<double>> layerWeights)
+    {
+        // Validating data dimensions
+        if (layerWeights.Count != layers[layerIndex].Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+        // looping and changing each layer's node weights
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            Node nodeToChangeWeight = layers[layerIndex][currentNodeIndex];
+            nodeToChangeWeight.SetWeightsThatLeadToNextLayer(layerWeights[currentNodeIndex]);
+        }
+    }
+
+    public void SetWeights(List<List<List<double>>> weights)
+    {
+        // Validating data dimensions
+        if (weights.Count != layers.Count)
+        {
+            throw new DataDimensionsMismatchException();
+        }
+
+        // looping and changing each layer's node weights
+        for (int currentLayerIndex = 0; currentLayerIndex < layers.Count; currentLayerIndex++)
+        {
+            this.SetLayerWeights(currentLayerIndex, weights[currentLayerIndex]);
+        }
+    }
+
+
+
+    public List<double> GetNodeOutputWeights(int layerIndex, int nodeIndex)
+    {
+        // getting node weights
+        return layers[layerIndex][nodeIndex].GetWeights();
+    }
+
+
+    public List<List<double>> GetLayerWeights(int layerIndex)
+    {
+        List<List<double>> layerWeightsToReturn = new List<List<double>>(layers[layerIndex].Count);
+        // looping and getting each node weights
+        for (int currentNodeIndex = 0; currentNodeIndex < layers[layerIndex].Count; currentNodeIndex++)
+        {
+            layerWeightsToReturn.Add(this.GetNodeOutputWeights(layerIndex, currentNodeIndex));
+        }
+
+        return layerWeightsToReturn;
+    }
+
+    public List<List<List<double>>> GetWeights()
+    {
+        List<List<List<double>>> weightsToReturn = new List<List<List<double>>>(layers.Count);
+        // looping and getting each layer's node weights
+        for (int currentLayerIndex = 0; currentLayerIndex < layers.Count; currentLayerIndex++)
+        {
+            weightsToReturn.Add(this.GetLayerWeights(currentLayerIndex));
+        }
+
+        return weightsToReturn;
     }
 
     // TODO IMPORTANT ADD SAVING AND LOADING OF THE NEURAL NETWORK

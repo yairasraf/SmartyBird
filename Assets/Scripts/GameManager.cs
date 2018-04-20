@@ -14,10 +14,7 @@ public class GameManager : MonoBehaviour
 
     private List<float> finalFitnessOfBirdsOrderer;
 
-
     public BirdEvolutionAI birdEvolutionAIToSpawn;
-
-    private bool allBirdDead = false;
 
     // Use this for initialization
     void Start()
@@ -31,8 +28,9 @@ public class GameManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
             instance = this;
             aiBirdsPool = new List<BirdEvolutionAI>(10);
-            choosedAIBirdsPool = new List<BirdEvolutionAI>(4);
+            choosedAIBirdsPool = new List<BirdEvolutionAI>(2);
             finalFitnessOfBirdsOrderer = new List<float>(10);
+            LoadNextLevel();
         }
 
     }
@@ -50,7 +48,22 @@ public class GameManager : MonoBehaviour
     public void Round()
     {
         // TODO ADD CALLING TO THE ALGORITHM ABOUT IMPROVING EACH BIRD AI HERE
+
+        // choosing 4 best birds via fitness function
+        AddChosenBirdsToArrayAnRemoveAllFromOriginalArray();
+
+        // RESTART LEVEL FOR NOW
         RestartLevel();
+
+        // instantiate new better birds
+        InstantiateAndImproveAndMutateAndCrossOverBirds();
+    }
+    /// <summary>
+    /// This function loads the next level from all of the possible scenes
+    /// </summary>
+    public void LoadNextLevel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex+1);
     }
     /// <summary>
     /// This function restarts the current level
@@ -70,8 +83,50 @@ public class GameManager : MonoBehaviour
         // TODO ADD SAVING FITNESS HERE THEN SELECTING, MUTATING, CROSS OVER
         if (aiBirdsPool.Count == 0)
         {
-            allBirdDead = true;
             Round();
+        }
+    }
+
+    private void AddChosenBirdsToArrayAnRemoveAllFromOriginalArray()
+    {
+        // DONT FORGET THAT WE HAVE ONLY FITNESSES OF BIRD IN THE ARRAY OF FITNESSES
+        // finalFitnessOfBirdsOrderer
+        // adding 2 first birds
+        for (int i = 0; i < 2; i++)
+        {
+            choosedAIBirdsPool[i] = aiBirdsPool[i];
+            aiBirdsPool.RemoveAt(i);
+        }
+        // now looping to check if we have bird bigger than some other bird
+        for (int curBirdIndex = 0; curBirdIndex < aiBirdsPool.Count; curBirdIndex++)
+        {
+            BirdEvolutionAI curBird = aiBirdsPool[curBirdIndex];
+            // now looping the best birds array and comparing to check if we need to switch with some bird
+            for (int bestBirdIndex = 0; bestBirdIndex < choosedAIBirdsPool.Count; bestBirdIndex++)
+            {
+                if (curBird.Fitness() > choosedAIBirdsPool[bestBirdIndex].Fitness())
+                {
+                    choosedAIBirdsPool[bestBirdIndex] = curBird;
+                }
+            }
+        }
+
+        // now empty the not choosen birds array
+        aiBirdsPool.RemoveRange(0, aiBirdsPool.Count);
+    }
+    private void InstantiateAndImproveAndMutateAndCrossOverBirds()
+    {
+        // TODO ADD MUTATING HERE
+        // assuming we have 2 birds in the best birds array
+        print("reached mutating");
+        for (int i = 0; i < 10; i++)
+        {
+            BirdEvolutionAI newBird = Instantiate(birdEvolutionAIToSpawn, birdEvolutionAIToSpawn.transform.position, birdEvolutionAIToSpawn.transform.rotation);
+            // cross over the two dna's
+            newBird.dna = BirdDNA.CrossOver(choosedAIBirdsPool[0].dna, choosedAIBirdsPool[1].dna);
+            // mutating the new dna a bit
+            newBird.dna.Mutate(GameConstants.defaultMutationChance);
+            // newBird.dna = choosedAIBirdsPool;
         }
     }
 

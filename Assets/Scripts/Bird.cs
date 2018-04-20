@@ -13,13 +13,14 @@ public class Bird : MonoBehaviour
     // public bool isJumping;
     public Transform deathParticleSystem;
     public Sprite[] animationSprites;
+    public int animationFrameRate = 7;
 
     void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
         render = GetComponent<SpriteRenderer>();
         // make the bird sleep so the game will start when we interact with the bird interface
-        rigid.Sleep();
+        // rigid.Sleep();
     }
 
     void FixedUpdate()
@@ -52,7 +53,7 @@ public class Bird : MonoBehaviour
         }
 
         // Animation here
-        render.sprite = animationSprites[(Time.frameCount / 15) % animationSprites.Length];
+        render.sprite = animationSprites[(Time.frameCount / animationFrameRate) % animationSprites.Length];
 
     }
 
