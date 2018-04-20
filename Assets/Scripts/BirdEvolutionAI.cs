@@ -4,6 +4,7 @@ using UnityEngine;
 [RequireComponent(typeof(Bird))]
 public class BirdEvolutionAI : MonoBehaviour
 {
+    public static List<BirdEvolutionAI> instances = new List<BirdEvolutionAI>();
     private Bird bird;
     //public BirdDNA Dna
     //{
@@ -27,7 +28,18 @@ public class BirdEvolutionAI : MonoBehaviour
         neuralNet.FinishBuilding(Utils.LinearError);
 
 
-        this.dna = new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
+        this.dna = GameManager.instance.GetANewBirdDNA();
+        // if we dont have a valid DNA from the DNA Generator
+        if (dna == null)
+        {
+            this.dna = new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
+        }
+        else
+        {
+            // we are here if we DID got a new DNA from the DNA Generator so we should actually apply it to the neural network
+            this.neuralNet.SetWeights(this.dna.weightsOfNeuralNetwork);
+            this.neuralNet.SetBiases(this.dna.biasesOfNeuralNetwork);
+        }
         //if (this.Dna == null)
         //{
         //    this.dna = new BirdDNA(neuralNet.GetWeights(), neuralNet.GetBiases());
@@ -46,12 +58,20 @@ public class BirdEvolutionAI : MonoBehaviour
         //    //neuralNet.SetWeights(2, dna.weightsOfNeuralNetwork[2]);
         //    //neuralNet.SetBiases(2, dna.biasesOfNeuralNetwork[2]);
         //}
-        GameManager.instance.AddAIBird(this);
+        GameManager.instance.AddBird();
+        instances.Add(this);
     }
 
     void Update()
     {
 
+        // checking collisions
+        // TODO ADD A BETTER COLLISION CHECK
+        Rigidbody2D rigid = bird.GetRigid();
+        if (rigid.position.y > bird.maxYBoundry || rigid.position.y < bird.minYBoundry)
+        {
+            KillEvolutionAIBird();
+        }
 
         // now we pass the coordinates of what wall we hit
         //double distanceFromBirdToNearWall = hit.transform.position.x - transform.position.x;
@@ -110,14 +130,12 @@ public class BirdEvolutionAI : MonoBehaviour
         this.dna = newDna;
     }
     // kills a bird and returns its fitness
-    public float KillEvolutionAIBird()
+    public void KillEvolutionAIBird()
     {
-        float fitnessToReturn = this.Fitness();
         // we are getting the score in remove AI bird
         GameManager.instance.RemoveAIBird(this);
         // only then killing it
         Destroy(this.gameObject);
-        return fitnessToReturn;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)

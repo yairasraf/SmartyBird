@@ -4,7 +4,8 @@
     // AIDifficulty 1 is pretty easy
     public static int AIDifficulty = 1;
     public static double defaultLearningRate = 0.2f;
-    public static double defaultMutationChance = 0.8f;
+    public static double defaultMutationChance = 0.05f;
+    public static double defaultMutationMultiplier = 200f;
 
 
 }

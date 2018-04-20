@@ -24,23 +24,23 @@ public class BirdDNA
         {
 
             // mutating biases
-            for (int biasIndex = 0; biasIndex < biasesOfNeuralNetwork.Count; biasIndex++)
+            for (int biasIndex = 0; biasIndex < biasesOfNeuralNetwork[layerIndex].Count; biasIndex++)
             {
                 // change to mutate here
                 if (Utils.randomGenerator.NextDouble() < mutationChance)
                 {
-                    biasesOfNeuralNetwork[layerIndex][biasIndex] *= Utils.GetRandomNumber(0, 2);
+                    biasesOfNeuralNetwork[layerIndex][biasIndex] *= Utils.GetRandomNumber(-GameConstants.defaultMutationMultiplier, GameConstants.defaultMutationMultiplier);
                 }
             }
             // mutating weights
-            for (int nodeIndex = 0; nodeIndex < weightsOfNeuralNetwork.Count; nodeIndex++)
+            for (int nodeIndex = 0; nodeIndex < weightsOfNeuralNetwork[layerIndex].Count; nodeIndex++)
             {
-                for (int weightIndex = 0; weightIndex < weightsOfNeuralNetwork.Count; weightIndex++)
+                for (int weightIndex = 0; weightIndex < weightsOfNeuralNetwork[layerIndex][nodeIndex].Count; weightIndex++)
                 {
                     // change to mutate here
                     if (Utils.randomGenerator.NextDouble() < mutationChance)
                     {
-                        weightsOfNeuralNetwork[layerIndex][nodeIndex][weightIndex] *= Utils.GetRandomNumber(0, 2);
+                        weightsOfNeuralNetwork[layerIndex][nodeIndex][weightIndex] *= Utils.GetRandomNumber(-GameConstants.defaultMutationMultiplier, GameConstants.defaultMutationMultiplier);
                     }
                 }
             }
@@ -76,8 +76,8 @@ public class BirdDNA
                 for (int curNodeWeightIndex = 0; curNodeWeightIndex < bird1.weightsOfNeuralNetwork[curLayerIndex][curNodeIndex].Count; curNodeWeightIndex++)
                 {
                     // add here a weight of either from bird1 or from bird2, one from each one or randomly
-                    // returns a number which is either 0 or 1
-                    if (Utils.randomGenerator.Next(0, 2) == 1)
+                    // returns a number which is between 0 and 1
+                    if (Utils.randomGenerator.NextDouble() > 0.5)
                     {
                         curNodeWeightsDna.Add(bird1.weightsOfNeuralNetwork[curLayerIndex][curNodeIndex][curNodeWeightIndex]);
                     }

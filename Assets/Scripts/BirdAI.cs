@@ -95,8 +95,8 @@ public class BirdAI : MonoBehaviour
     public float KillAIBird()
     {
         float fitnessToReturn = this.Fitness();
-        bird.Kill();
-        playerToLearnFrom.GetComponent<Bird>().Kill();
+        //bird.Kill();
+        //playerToLearnFrom.GetComponent<Bird>().Kill();
         return fitnessToReturn;
     }
 

@@ -26,8 +26,8 @@ public class Node
         // creating the node variables
         this.value = 0;
         // SMALL random values
-        // this.bias = (0.001 - 0.0001) * Utils.randomGenerator.NextDouble() + 0.0001;
-        this.bias = Utils.randomGenerator.NextDouble();
+        this.bias = (0.001 - 0.0001) * Utils.randomGenerator.NextDouble() + 0.0001;
+        // this.bias = Utils.randomGenerator.NextDouble();
         // creating the lists for the edges
         this.inputEdges = new List<Edge>();
         this.outputEdges = new List<Edge>();
@@ -166,8 +166,6 @@ public class Node
         {
 
         }
-
-
 
     }
 

@@ -4,6 +4,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Bird))]
 public class BirdPlayer : MonoBehaviour
 {
+    public static BirdPlayer singelton = null;
     private Bird bird;
     public Text scoreText;
     // public BirdAI birdThatLearnsFromYou;
@@ -12,8 +13,16 @@ public class BirdPlayer : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        bird = GetComponent<Bird>();
-
+        if (singelton)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            singelton = this;
+            bird = GetComponent<Bird>();
+            // GameManager.instance.AddBird();
+        }
     }
 
     // Update is called once per frame
@@ -54,8 +63,11 @@ public class BirdPlayer : MonoBehaviour
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // basically losing
-        bird.Kill();
+        //bird.Kill();
         // birdThatLearnsFromYou.KillAIBird();
+        singelton = null;
+        Destroy(this.gameObject);
+        GameManager.instance.RemovePlayerBird();
     }
 
 }

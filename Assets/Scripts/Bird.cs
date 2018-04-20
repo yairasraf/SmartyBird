@@ -44,13 +44,13 @@ public class Bird : MonoBehaviour
         rigid.velocity = tempVelocity;
 
         // this is for making the bird look to the direction it is going
-        //rigid.rotation = Mathf.Atan2(rigid.velocity.y, rigid.velocity.x) * Mathf.Rad2Deg;
+        rigid.rotation = Mathf.Atan2(rigid.velocity.y, rigid.velocity.x) * Mathf.Rad2Deg;
         // checking collisions
         // TODO ADD A BETTER COLLISION CHECK
-        if (rigid.position.y > maxYBoundry || rigid.position.y < minYBoundry)
-        {
-            Kill();
-        }
+        //if (rigid.position.y > maxYBoundry || rigid.position.y < minYBoundry)
+        //{
+        //    Kill();
+        //}
 
         // Animation here
         render.sprite = animationSprites[(Time.frameCount / animationFrameRate) % animationSprites.Length];
@@ -66,14 +66,17 @@ public class Bird : MonoBehaviour
         // this is not good because when a lot of jumps it just stays at constant upwards speed
         rigid.velocity = new Vector2(rigid.velocity.x, jumpSpeed);
     }
-    public void Kill()
+    //public void Kill()
+    //{
+    //    //Destroy(gameObject);
+    //    Instantiate(deathParticleSystem, transform.position, Quaternion.identity);
+    //    transform.position = Vector2.up * 5;
+    //    rigid.velocity = Vector2.zero;
+    //}
+    public Rigidbody2D GetRigid()
     {
-        //Destroy(gameObject);
-        Instantiate(deathParticleSystem, transform.position, Quaternion.identity);
-        transform.position = Vector2.up * 5;
-        rigid.velocity = Vector2.zero;
+        return this.rigid;
     }
-
     public float Score()
     {
         // a simple score function, based on the x axis of the object
