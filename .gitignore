@@ -1,0 +1,9 @@
+*
+!*/
+!Assets/Scripts/*.cs
+!Assets/Objects/**
+!Assets/Levels/**
+!Assets/Audio/**
+!Assets/Textures/**
+!.gitignore
+*.meta
