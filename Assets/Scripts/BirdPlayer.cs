@@ -7,7 +7,6 @@ public class BirdPlayer : MonoBehaviour
     public static BirdPlayer singelton = null;
     private Bird bird;
     public Text scoreText;
-    public bool isJumping1;
 
     // Use this for initialization
     void Start()
@@ -28,37 +27,35 @@ public class BirdPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // updating the score of the player
+        // if the game is paused we do not want to return because we want to check for player input, if he jumps we should resume the game
+
+        // updating the score of the player every frame
         scoreText.text = "Fitness: " + Mathf.Round(this.bird.Score());
 
+        // handeling user input
         // checking whether we pressed jump, cross-platform input
         if (Application.isMobilePlatform)
         {
             if (Input.touchCount > 0)
             {
-                bird.Jump();
-                //if (Input.GetTouch(0).phase == TouchPhase.Began)
-                //{
-                //    bird.Jump();
-                //    isJumping1 = true;
-                //}
-                //else
-                //{
-                //    isJumping1 = false;
-                //}
+                if (Input.GetTouch(0).phase == TouchPhase.Began)
+                {
+                    bird.Jump();
+                    // Setting the time scale to 1 just in case we start with a pause
+                    GameManager.instance.ResumeGame();
+
+                }
             }
         }
         else
         {
-            if (Input.GetButton("Jump"))
+            if (Input.GetButtonDown("Jump"))
             {
                 bird.Jump();
-                isJumping1 = true;
+                // Setting the time scale to 1 just in case we start with a pause
+                GameManager.instance.ResumeGame();
             }
-            else
-            {
-                isJumping1 = false;
-            }
+
         }
     }
 

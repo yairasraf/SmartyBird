@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// A simple class to destroy an object after specific time
+/// </summary>
 public class TimedDestroy : MonoBehaviour
 {
 

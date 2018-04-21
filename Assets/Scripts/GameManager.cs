@@ -41,7 +41,6 @@ public class GameManager : MonoBehaviour
 
     public BirdEvolutionAI birdEvolutionAIToSpawn;
 
-    // Use this for initialization
     void Start()
     {
         if (instance)
@@ -60,12 +59,6 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     /// <summary>
     /// We call this function when we want to start a round,
     /// it reset the birds counter, also it restarts the level
@@ -76,6 +69,8 @@ public class GameManager : MonoBehaviour
         RestartLevel();
         // reset the amount of birds alive
         instance.amountOfBirdsAlive = 0;
+        // pausing the time speed of the game to give the user time to start
+        PauseGame();
     }
     /// <summary>
     /// This function loads the next level from all of the possible scenes

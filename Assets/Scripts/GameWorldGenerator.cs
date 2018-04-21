@@ -58,6 +58,12 @@ public class GameWorldGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // if the game is paused we return and dont do anything
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
+
         if (spawnRate == 0)
         {
             // we can not have a spawn rate zero because it would be divison by zero

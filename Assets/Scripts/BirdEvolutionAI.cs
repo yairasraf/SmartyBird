@@ -66,7 +66,13 @@ public class BirdEvolutionAI : MonoBehaviour
     void Update()
     {
 
+        // if the game is paused we should NOT do the calculations
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
 
+        // at the start of the game we dont see that walls so we should assign them via the game world generator
         if (!(upperWallObject && floorWallObject))
         {
             upperWallObject = GameWorldGenerator.instance.oldestSpawnedUpperWall;

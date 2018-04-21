@@ -12,16 +12,21 @@ public class CameraFollow : MonoBehaviour
     public Vector3 offset;
     public float smoothSpeed = 0.1f;
     private Vector3 currentCamVelocity = Vector3.zero;
+
     void Start()
     {
-        //if (targets == null)
-        //{
-        //    targets = GameObject.FindGameObjectsWithTag("Player");
-        //}
+
     }
 
     void FixedUpdate()
     {
+
+        // if the game is paused we return and dont do anything
+        if (Time.timeScale == 0)
+        {
+            return;
+        }
+
         if (targets == null || targets.Count == 0)
         {
             return;

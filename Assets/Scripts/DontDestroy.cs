@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 
-public class DontDestroy : MonoBehaviour {
+/// <summary>
+/// A simple script to not destroy an object at the loading of another scene
+/// </summary>
+public class DontDestroy : MonoBehaviour
+{
 
-	// Use this for initialization
-	void Start () {
+    void Start()
+    {
         DontDestroyOnLoad(this.gameObject);
-	}
+    }
 }

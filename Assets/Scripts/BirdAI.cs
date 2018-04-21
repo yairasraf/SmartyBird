@@ -7,7 +7,6 @@ public class BirdAI : MonoBehaviour
     private Bird bird;
     public NeuralNetwork neuralNet;
     public float eachWallSpriteHeight = 8;
-    public BirdPlayer playerToLearnFrom;
     void Start()
     {
         bird = GetComponent<Bird>();
@@ -58,7 +57,7 @@ public class BirdAI : MonoBehaviour
 
         List<double> expectedData = new List<double>(1)
         {
-            Utils.BooleanToNumber(playerToLearnFrom.isJumping1)
+            // Utils.BooleanToNumber(BirdPlayer.Instantiate.)
         };
         // teaching the model what he should do from the player playing
         neuralNet.Learn(predictionData, expectedData);

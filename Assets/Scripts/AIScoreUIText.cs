@@ -12,6 +12,5 @@ public class AIScoreUIText : MonoBehaviour
     void Update()
     {
         aiScoreText.text = "AI Wins: " + ScoreManager.GetAIWins();
-
     }
 }

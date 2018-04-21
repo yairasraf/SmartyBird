@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 /// <summary>
-/// This Class manages the scores of the whole game
+/// This Class manages and tracks the scores of the whole game
 /// </summary>
 public static class ScoreManager
 {

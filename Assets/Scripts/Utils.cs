@@ -1,5 +1,8 @@
 ﻿using System;
 
+/// <summary>
+/// An helper class for some handy utilities functions and more
+/// </summary>
 public static class Utils
 {
     public static Random randomGenerator = new Random();
