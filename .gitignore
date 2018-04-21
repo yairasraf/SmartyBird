@@ -5,5 +5,6 @@
 !Assets/Levels/**
 !Assets/Audio/**
 !Assets/Textures/**
+!ProjectSettings/**
 !.gitignore
 *.meta
