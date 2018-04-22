@@ -69,6 +69,7 @@ public class GameManager : MonoBehaviour
         RestartLevel();
         // reset the amount of birds alive
         instance.amountOfBirdsAlive = 0;
+        CameraFollow.targets.RemoveRange(0, CameraFollow.targets.Count);
         // pausing the time speed of the game to give the user time to start
         PauseGame();
     }

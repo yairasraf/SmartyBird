@@ -3,7 +3,7 @@
 [RequireComponent(typeof(Rigidbody2D), typeof(SpriteRenderer))]
 public class Bird : MonoBehaviour
 {
-    private Rigidbody2D rigid;
+    public Rigidbody2D rigid;
     private SpriteRenderer render;
     public float speed = 8;
     public float jumpSpeed = 10;
@@ -66,18 +66,27 @@ public class Bird : MonoBehaviour
     {
         // TODO CHANGE THIS CHECK OF WHO IS THE WINNER
 
-        // if we are the last bird alive we should check if we are player or AI
-        if (GameManager.instance.amountOfBirdsAlive == 1)
-        {
-            if (this.GetComponent<BirdPlayer>())
-            {
-                ScoreManager.AddPointToPlayer();
-            }
-            else
-            {
-                ScoreManager.AddPointToAI();
-            }
-        }
+        // just in case we have a player component
+        BirdPlayer playerComponent = this.GetComponent<BirdPlayer>();
+
+        //// if player is alive and 
+        //if (GameManager.instance.amountOfBirdsAlive == 1)
+        //{
+
+        //    // if we are the last bird alive we should check if we are player or AI
+
+        //    if (GameManager.instance.amountOfBirdsAlive == 1)
+        //    {
+        //        if (this.GetComponent<BirdPlayer>())
+        //        {
+        //            ScoreManager.AddPointToPlayer();
+        //        }
+        //        else
+        //        {
+        //            ScoreManager.AddPointToAI();
+        //        }
+        //    }
+        //}
         GameManager.instance.DecCurrentlyAliveBirdsCounterAndCheckForEndRound();
 
         // checking if we our an evolutional AI Bird, if we are then call its kill function as well
@@ -94,6 +103,29 @@ public class Bird : MonoBehaviour
         Instantiate(deathParticleSystem, transform.position, transform.rotation);
         // destory this bird gameobject
         Destroy(this.gameObject);
+
+        // checking victory
+        // if the player dies that show end game UI and add score to AI
+        if (playerComponent)
+        {
+
+            ScoreManager.AddPointToAI();
+            GameManager.instance.PauseGame();
+            playerComponent.whoWinnerPanelToEnable.SetActive(true);
+            playerComponent.whoWinnerText.text = "The Bot defeated You!";
+        }
+        else
+        {
+            // we are here if we have 2 birds on screen and one of them is the player
+            if (GameManager.instance.amountOfBirdsAlive == 1)
+            {
+                ScoreManager.AddPointToPlayer();
+                GameManager.instance.PauseGame();
+                BirdPlayer.singelton.whoWinnerPanelToEnable.SetActive(true);
+                BirdPlayer.singelton.whoWinnerText.text = "You have defeated the Bot!";
+            }
+
+        }
     }
 
     public Rigidbody2D GetRigid()
