@@ -102,7 +102,7 @@ public class BirdDNA
             for (int curBiasIndex = 0; curBiasIndex < bird1.biasesOfNeuralNetwork[curLayerIndex].Count; curBiasIndex++)
             {
                 // add here a weight of either from bird1 or from bird2, one from each one or randomly
-                if (Utils.randomGenerator.Next(0, 2) == 1)
+                if (Utils.randomGenerator.NextDouble() > 0.5)
                 {
                     biasesOfNodesInCurLayer.Add(bird1.biasesOfNeuralNetwork[curLayerIndex][curBiasIndex]);
                 }

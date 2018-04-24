@@ -12,8 +12,8 @@ public class Edge
     {
         this.Previous = previous;
         this.Next = next;
-        // SMALL random values
-        this.Weight = (0.00001 - 0.000001) * Utils.randomGenerator.NextDouble() + 0.000001;
+        // some random values
+        this.Weight = Utils.randomGenerator.NextDouble();
     }
 
 }

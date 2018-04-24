@@ -38,7 +38,6 @@ public class GameManager : MonoBehaviour
     private List<Tuple<float, BirdDNA>> choosedBirdsDNAPool;
 
 
-
     public BirdEvolutionAI birdEvolutionAIToSpawn;
 
     void Start()
